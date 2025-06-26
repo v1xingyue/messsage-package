@@ -178,7 +178,7 @@ export const PublicKeyManager: React.FC<PublicKeyManagerProps> = ({
                 key={entry.id}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                   isOwnKey(entry.id)
-                    ? 'border-green-500/50 bg-green-500/10'
+                    ? 'border-blue-500/50 bg-blue-500/10'
                     : 'border-white/20 bg-white/5 hover:bg-white/10'
                 }`}
               >
@@ -197,7 +197,7 @@ export const PublicKeyManager: React.FC<PublicKeyManagerProps> = ({
                     )}
                     
                     {isOwnKey(entry.id) && (
-                      <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs">
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
                         我的公钥
                       </span>
                     )}
@@ -208,7 +208,7 @@ export const PublicKeyManager: React.FC<PublicKeyManagerProps> = ({
                       <>
                         <button
                           onClick={() => saveEdit(entry.id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm transition-colors"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm transition-colors"
                         >
                           保存
                         </button>
@@ -224,7 +224,7 @@ export const PublicKeyManager: React.FC<PublicKeyManagerProps> = ({
                         {!isOwnKey(entry.id) && (
                           <button
                             onClick={() => startEdit(entry)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-lg transition-colors"
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white p-1 rounded-lg transition-colors"
                           >
                             <Edit3 size={16} />
                           </button>
@@ -248,7 +248,7 @@ export const PublicKeyManager: React.FC<PublicKeyManagerProps> = ({
 
                 <button
                   onClick={() => copyPublicKey(entry.publicKey, entry.id)}
-                  className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
                 >
                   {copiedId === entry.id ? <Check size={16} /> : <Copy size={16} />}
                   <span>{copiedId === entry.id ? '已复制' : '复制公钥'}</span>

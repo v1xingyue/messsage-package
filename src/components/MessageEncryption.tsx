@@ -72,7 +72,7 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
               <select
                 value={selectedPublicKeyId}
                 onChange={(e) => setSelectedPublicKeyId(e.target.value)}
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">请选择公钥</option>
                 {appState.publicKeys.map((pk) => (
@@ -93,7 +93,7 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="输入要加密的消息..."
                 rows={6}
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
 
@@ -102,7 +102,7 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
               <button
                 onClick={encryptMessage}
                 disabled={!selectedPublicKeyId || !message.trim() || isEncrypting}
-                className="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
               >
                 <Send size={18} />
                 <span>{isEncrypting ? '加密中...' : '加密消息'}</span>
@@ -129,16 +129,16 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
                     value={encryptedMessage}
                     readOnly
                     rows={8}
-                    className="w-full bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-3 text-white resize-none focus:outline-none"
+                    className="w-full bg-blue-500/10 border border-blue-500/30 rounded-xl px-4 py-3 text-white resize-none focus:outline-none"
                   />
                   <button
-                    onClick={(copyEncryptedMessage)}
-                    className="absolute top-3 right-3 bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition-colors"
+                    onClick={copyEncryptedMessage}
+                    className="absolute top-3 right-3 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
                   >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                   </button>
                 </div>
-                <p className="text-green-300 text-sm mt-2">
+                <p className="text-blue-300 text-sm mt-2">
                   {copied ? '✓ 已复制到剪贴板' : '点击右上角按钮复制加密消息'}
                 </p>
               </div>

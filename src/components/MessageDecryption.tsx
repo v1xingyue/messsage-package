@@ -69,7 +69,7 @@ export const MessageDecryption: React.FC<MessageDecryptionProps> = ({
             {/* Active Key Info */}
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
               <div className="flex items-center space-x-2 mb-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full" />
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <span className="text-blue-200 font-medium">当前活跃密钥对: {activeKeyPair.name}</span>
               </div>
               <p className="text-blue-300 text-sm">
@@ -128,12 +128,12 @@ export const MessageDecryption: React.FC<MessageDecryptionProps> = ({
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   解密后的消息
                 </label>
-                <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
-                  <pre className="text-green-100 whitespace-pre-wrap break-words">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                  <pre className="text-blue-100 whitespace-pre-wrap break-words">
                     {decryptedMessage}
                   </pre>
                 </div>
-                <p className="text-green-300 text-sm mt-2">
+                <p className="text-blue-300 text-sm mt-2">
                   ✓ 消息解密成功
                 </p>
               </div>

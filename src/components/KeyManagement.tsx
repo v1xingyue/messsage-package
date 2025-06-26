@@ -143,7 +143,7 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
         {!showNameInput ? (
           <button
             onClick={() => setShowNameInput(true)}
-            className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-xl transition-all duration-200 transform hover:scale-105"
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-4 py-2 rounded-xl transition-all duration-200 transform hover:scale-105"
           >
             <Plus size={18} />
             <span>生成新密钥对</span>
@@ -155,13 +155,13 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="输入密钥名称"
-              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onKeyPress={(e) => e.key === 'Enter' && generateKeyPair()}
             />
             <button
               onClick={generateKeyPair}
               disabled={isGenerating || !newKeyName.trim()}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-4 py-2 rounded-xl transition-all duration-200 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-4 py-2 rounded-xl transition-all duration-200 disabled:cursor-not-allowed"
             >
               {isGenerating ? '生成中...' : '生成'}
             </button>
@@ -194,23 +194,23 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
                 key={keyPair.id}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                   keyPair.isActive
-                    ? 'border-green-500 bg-green-500/10'
+                    ? 'border-blue-500 bg-blue-500/10'
                     : 'border-white/20 bg-white/5 hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${keyPair.isActive ? 'bg-green-500' : 'bg-gray-500'}`} />
+                    <div className={`w-3 h-3 rounded-full ${keyPair.isActive ? 'bg-blue-500' : 'bg-gray-500'}`} />
                     <h3 className="font-semibold text-white">{keyPair.name}</h3>
                     {keyPair.isActive && (
-                      <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs">活跃</span>
+                      <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">活跃</span>
                     )}
                   </div>
                   <div className="flex space-x-2">
                     {!keyPair.isActive && (
                       <button
                         onClick={() => setActiveKey(keyPair.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm transition-colors"
+                        className="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1 rounded-lg text-sm transition-colors"
                       >
                         设为活跃
                       </button>
@@ -231,7 +231,7 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
                 <div className="flex space-x-2">
                   <button
                     onClick={() => copyPublicKey(keyPair.publicKey, keyPair.id)}
-                    className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
                   >
                     {copiedId === keyPair.id ? <Check size={16} /> : <Copy size={16} />}
                     <span>{copiedId === keyPair.id ? '已复制' : '复制公钥'}</span>
