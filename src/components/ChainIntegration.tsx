@@ -193,6 +193,3 @@ export const ChainIntegration: React.FC<ChainIntegrationProps> = ({ onChainKeysL
     </div>
   );
 };
-
-// Export utilities for use in other components
-export { contractUtils: SuiContractUtils };
