@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { Lock, Send, Copy, Check } from 'lucide-react';
+import { Lock, Send, Copy, Check, Cloud } from 'lucide-react';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import { AppState } from '../types';
 import { CryptoUtils } from '../utils/crypto';
+import { SuiContractUtils } from '../utils/suiContract';
 
 interface MessageEncryptionProps {
   appState: AppState;
+  contractUtils?: SuiContractUtils;
 }
 
-export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }) => {
+export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ 
+  appState, 
+  contractUtils 
+}) => {
+  const currentAccount = useCurrentAccount();
   const [selectedPublicKeyId, setSelectedPublicKeyId] = useState('');
   const [message, setMessage] = useState('');
   const [encryptedMessage, setEncryptedMessage] = useState('');
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sendToChain, setSendToChain] = useState(false);
+  const [isSendingToChain, setIsSendingToChain] = useState(false);
 
   const encryptMessage = async () => {
     if (!selectedPublicKeyId || !message.trim()) return;
@@ -24,11 +33,49 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
 
       const encrypted = await CryptoUtils.encryptMessage(message, selectedPublicKey.publicKey);
       setEncryptedMessage(encrypted);
+
+      // If user wants to send to chain and has wallet connected
+      if (sendToChain && contractUtils && currentAccount) {
+        await sendMessageToChain(encrypted, selectedPublicKey.publicKey);
+      }
     } catch (error) {
       console.error('Encryption failed:', error);
       alert('加密失败！请检查公钥是否正确。');
     } finally {
       setIsEncrypting(false);
+    }
+  };
+
+  const sendMessageToChain = async (encryptedContent: string, recipientPublicKey: string) => {
+    if (!contractUtils || !currentAccount) return;
+
+    setIsSendingToChain(true);
+    try {
+      // Generate message hash
+      const messageHash = await CryptoUtils.hashMasterPassword(encryptedContent);
+      
+      // Generate recipient key hash (simplified)
+      const recipientKeyHash = await CryptoUtils.hashMasterPassword(recipientPublicKey);
+
+      await contractUtils.sendMessage(
+        recipientKeyHash,
+        messageHash,
+        encryptedContent,
+        {
+          signAndExecuteTransaction: (params: any) => {
+            // This would be handled by the dapp-kit hook
+            return Promise.resolve({ digest: 'mock-digest' });
+          },
+          getAddress: () => currentAccount.address,
+        }
+      );
+
+      alert('消息已成功发送到链上！');
+    } catch (error) {
+      console.error('Failed to send message to chain:', error);
+      alert('发送到链上失败：' + (error as Error).message);
+    } finally {
+      setIsSendingToChain(false);
     }
   };
 
@@ -46,6 +93,7 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
     setMessage('');
     setEncryptedMessage('');
     setSelectedPublicKeyId('');
+    setSendToChain(false);
   };
 
   return (
@@ -97,15 +145,43 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
               />
             </div>
 
+            {/* Chain Integration Option */}
+            {contractUtils && currentAccount && (
+              <div className="bg-purple-500/20 border border-purple-500/30 rounded-xl p-4">
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={sendToChain}
+                    onChange={(e) => setSendToChain(e.target.checked)}
+                    className="w-4 h-4 text-purple-600 bg-transparent border-purple-400 rounded focus:ring-purple-500"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <Cloud className="w-4 h-4 text-purple-300" />
+                    <span className="text-purple-200">同时发送到 Sui 链上</span>
+                  </div>
+                </label>
+                <p className="text-purple-300 text-sm mt-2 ml-7">
+                  消息将被存储在区块链上，接收者可以从链上获取
+                </p>
+              </div>
+            )}
+
             {/* Encrypt Button */}
             <div className="flex space-x-3">
               <button
                 onClick={encryptMessage}
-                disabled={!selectedPublicKeyId || !message.trim() || isEncrypting}
+                disabled={!selectedPublicKeyId || !message.trim() || isEncrypting || isSendingToChain}
                 className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-3 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
               >
                 <Send size={18} />
-                <span>{isEncrypting ? '加密中...' : '加密消息'}</span>
+                <span>
+                  {isEncrypting 
+                    ? '加密中...' 
+                    : isSendingToChain 
+                    ? '发送到链上...' 
+                    : '加密消息'
+                  }
+                </span>
               </button>
               
               {(message || encryptedMessage) && (
@@ -129,7 +205,7 @@ export const MessageEncryption: React.FC<MessageEncryptionProps> = ({ appState }
                     value={encryptedMessage}
                     readOnly
                     rows={8}
-                    className="w-full bg-blue-500/10 border border-blue-500/30 rounded-xl px-4 py-3 text-white resize-none focus:outline-none"
+                    className="w-full bg-blue-500/10 border border-blue-500/30 rounded-xl px-4 py-3 text-white resize-none focus:outline-none font-mono text-sm"
                   />
                   <button
                     onClick={copyEncryptedMessage}

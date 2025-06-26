@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSuiClient } from '@mysten/dapp-kit';
 import { KeyManagement } from './KeyManagement';
 import { MessageEncryption } from './MessageEncryption';
 import { MessageDecryption } from './MessageDecryption';
 import { PublicKeyManager } from './PublicKeyManager';
+import { ChainIntegration } from './ChainIntegration';
 import { WalletConnection } from './WalletConnection';
-import { Key, Lock, Unlock, Users, LogOut } from 'lucide-react';
+import { Key, Lock, Unlock, Users, LogOut, Cloud } from 'lucide-react';
 import { AppState } from '../types';
+import { SuiContractUtils, OnChainPublicKey } from '../utils/suiContract';
 
 interface MainAppProps {
   appState: AppState;
@@ -14,7 +17,7 @@ interface MainAppProps {
   onLogout: () => void;
 }
 
-type Tab = 'keys' | 'encrypt' | 'decrypt' | 'contacts';
+type Tab = 'keys' | 'encrypt' | 'decrypt' | 'contacts' | 'chain';
 
 export const MainApp: React.FC<MainAppProps> = ({
   appState,
@@ -23,12 +26,36 @@ export const MainApp: React.FC<MainAppProps> = ({
   onLogout,
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>('keys');
+  const suiClient = useSuiClient();
+  const [contractUtils] = useState(() => new SuiContractUtils(suiClient));
+
+  const handleChainKeysLoaded = (onChainKeys: OnChainPublicKey[]) => {
+    // Merge on-chain keys with local public keys
+    const chainPublicKeys = onChainKeys.map(key => ({
+      id: `chain-${key.owner}`,
+      name: `${key.name} (链上)`,
+      publicKey: key.publicKey,
+    }));
+
+    // Filter out duplicates and merge
+    const existingIds = new Set(appState.publicKeys.map(pk => pk.id));
+    const newChainKeys = chainPublicKeys.filter(pk => !existingIds.has(pk.id));
+
+    if (newChainKeys.length > 0) {
+      const newState = {
+        ...appState,
+        publicKeys: [...appState.publicKeys, ...newChainKeys],
+      };
+      onStateChange(newState);
+    }
+  };
 
   const tabs = [
     { id: 'keys' as Tab, label: '密钥管理', icon: Key },
     { id: 'encrypt' as Tab, label: '加密消息', icon: Lock },
     { id: 'decrypt' as Tab, label: '解密消息', icon: Unlock },
     { id: 'contacts' as Tab, label: '公钥列表', icon: Users },
+    { id: 'chain' as Tab, label: '链上集成', icon: Cloud },
   ];
 
   return (
@@ -86,10 +113,14 @@ export const MainApp: React.FC<MainAppProps> = ({
               appState={appState}
               masterPassword={masterPassword}
               onStateChange={onStateChange}
+              contractUtils={contractUtils}
             />
           )}
           {activeTab === 'encrypt' && (
-            <MessageEncryption appState={appState} />
+            <MessageEncryption 
+              appState={appState} 
+              contractUtils={contractUtils}
+            />
           )}
           {activeTab === 'decrypt' && (
             <MessageDecryption
@@ -101,6 +132,11 @@ export const MainApp: React.FC<MainAppProps> = ({
             <PublicKeyManager
               appState={appState}
               onStateChange={onStateChange}
+            />
+          )}
+          {activeTab === 'chain' && (
+            <ChainIntegration
+              onChainKeysLoaded={handleChainKeysLoaded}
             />
           )}
         </div>

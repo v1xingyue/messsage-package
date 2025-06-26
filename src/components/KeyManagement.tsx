@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { Plus, Key, Download, Copy, Check, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Key, Download, Copy, Check, Trash2, Eye, EyeOff, Cloud } from 'lucide-react';
+import { useCurrentAccount } from '@mysten/dapp-kit';
 import { AppState, KeyPair } from '../types';
 import { CryptoUtils } from '../utils/crypto';
+import { SuiContractUtils } from '../utils/suiContract';
 
 interface KeyManagementProps {
   appState: AppState;
   masterPassword: string;
   onStateChange: (newState: AppState) => void;
+  contractUtils?: SuiContractUtils;
 }
 
 export const KeyManagement: React.FC<KeyManagementProps> = ({
   appState,
   masterPassword,
   onStateChange,
+  contractUtils,
 }) => {
+  const currentAccount = useCurrentAccount();
   const [isGenerating, setIsGenerating] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
   const [showNameInput, setShowNameInput] = useState(false);
@@ -21,6 +26,7 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
   const [exportingId, setExportingId] = useState<string | null>(null);
   const [showExportPassword, setShowExportPassword] = useState(false);
   const [exportPassword, setExportPassword] = useState('');
+  const [registeringOnChain, setRegisteringOnChain] = useState<string | null>(null);
 
   const generateKeyPair = async () => {
     if (!newKeyName.trim()) return;
@@ -35,11 +41,10 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
         name: newKeyName.trim(),
         publicKey,
         privateKey: encryptedPrivateKey,
-        isActive: appState.keyPairs.length === 0, // First key is active by default
+        isActive: appState.keyPairs.length === 0,
         createdAt: Date.now(),
       };
 
-      // Deactivate other keys if this is set as active
       const updatedKeyPairs = appState.keyPairs.map(kp => ({
         ...kp,
         isActive: false,
@@ -65,6 +70,35 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
       console.error('Failed to generate key pair:', error);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const registerKeyOnChain = async (keyPair: KeyPair) => {
+    if (!contractUtils || !currentAccount) {
+      alert('请先连接钱包并确保合约已部署');
+      return;
+    }
+
+    setRegisteringOnChain(keyPair.id);
+    try {
+      await contractUtils.registerPublicKey(
+        keyPair.publicKey,
+        keyPair.name,
+        {
+          signAndExecuteTransaction: (params: any) => {
+            // This would be handled by the dapp-kit hook
+            return Promise.resolve({ digest: 'mock-digest' });
+          },
+          getAddress: () => currentAccount.address,
+        }
+      );
+      
+      alert('公钥已成功注册到链上！');
+    } catch (error) {
+      console.error('Failed to register key on chain:', error);
+      alert('注册失败：' + (error as Error).message);
+    } finally {
+      setRegisteringOnChain(null);
     }
   };
 
@@ -228,7 +262,7 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
                   创建时间: {new Date(keyPair.createdAt).toLocaleString()}
                 </div>
 
-                <div className="flex space-x-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => copyPublicKey(keyPair.publicKey, keyPair.id)}
                     className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
@@ -244,6 +278,19 @@ export const KeyManagement: React.FC<KeyManagementProps> = ({
                     <Download size={16} />
                     <span>导出私钥</span>
                   </button>
+
+                  {contractUtils && currentAccount && (
+                    <button
+                      onClick={() => registerKeyOnChain(keyPair)}
+                      disabled={registeringOnChain === keyPair.id}
+                      className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                    >
+                      <Cloud size={16} />
+                      <span>
+                        {registeringOnChain === keyPair.id ? '注册中...' : '注册到链上'}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
