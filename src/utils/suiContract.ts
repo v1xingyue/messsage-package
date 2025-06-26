@@ -4,10 +4,10 @@ import { bcs } from '@mysten/sui/bcs';
 
 // Contract configuration
 export const CONTRACT_CONFIG = {
-  PACKAGE_ID: process.env.VITE_SUI_PACKAGE_ID || '0x0', // Will be set after deployment
+  PACKAGE_ID: import.meta.env.VITE_SUI_PACKAGE_ID || '0x0', // Will be set after deployment
   MODULE_NAME: 'anonymous_message',
-  REGISTRY_OBJECT_ID: process.env.VITE_REGISTRY_OBJECT_ID || '0x0',
-  STORAGE_OBJECT_ID: process.env.VITE_STORAGE_OBJECT_ID || '0x0',
+  REGISTRY_OBJECT_ID: import.meta.env.VITE_REGISTRY_OBJECT_ID || '0x0',
+  STORAGE_OBJECT_ID: import.meta.env.VITE_STORAGE_OBJECT_ID || '0x0',
 };
 
 export interface OnChainPublicKey {
