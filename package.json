@@ -1,13 +1,20 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "anonymous-message-tool",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup-sui": "./scripts/setup-sui.sh",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:testnet": "./scripts/deploy.sh testnet",
+    "deploy:devnet": "./scripts/deploy.sh devnet",
+    "deploy:mainnet": "./scripts/deploy.sh mainnet",
+    "test-contract": "./scripts/test-contract.sh",
+    "verify": "./scripts/verify-deployment.sh"
   },
   "dependencies": {
     "@mysten/dapp-kit": "^0.14.0",
